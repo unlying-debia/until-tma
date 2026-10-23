@@ -9,12 +9,12 @@
     const app = globalThis.Telegram?.WebApp;
     return Boolean(app && app.platform && app.platform !== 'unknown');
   };
-  const init = (blockId) => {
-    if (!Number.isInteger(blockId) || blockId <= 0) {
-      return Promise.reject(new Error('invalid blockId'));
-    }
-    if (!inTelegram()) return Promise.reject(new Error('outside Telegram'));
-    if (controller) return Promise.resolve(controller);
+  const valid = (blockId) =>
+    typeof blockId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(blockId);
+  // The console issues ids like "int-55665"; older SDK builds expect the bare number.
+  const candidates = (blockId) =>
+    blockId.startsWith('int-') ? [blockId, blockId.slice(4)] : [blockId];
+  const loadSdk = () => {
     if (!loading) {
       loading = new Promise((resolve, reject) => {
         const sdk = globalThis.ADSGRAM?.SDK;
@@ -27,12 +27,24 @@
           : reject(new Error('SDK missing'));
         script.onerror = () => reject(new Error('SDK failed to load'));
         document.head.appendChild(script);
-      })
-        .then((sdk) => sdk.init({ blockId }))
-        .then((made) => { controller = made; return made; });
+      });
       loading.catch(() => { loading = null; });
     }
     return loading;
+  };
+  const init = async (blockId) => {
+    if (!valid(blockId)) throw new Error('invalid blockId');
+    if (!inTelegram()) throw new Error('outside Telegram');
+    if (controller) return controller;
+    const sdk = await loadSdk();
+    let lastError = null;
+    for (const id of candidates(blockId)) {
+      try {
+        controller = await sdk.init({ blockId: id });
+        return controller;
+      } catch (error) { lastError = error; }
+    }
+    throw lastError;
   };
   globalThis.countdownAdsgram = {
     /* Resolves {shown, done}: shown — an ad was displayed, done — watched to the end. */
