@@ -1,0 +1,38 @@
+[
+  {
+    "id": "salary",
+    "emoji": "💰",
+    "color": 0,
+    "repeat": "monthly",
+    "day": 10
+  },
+  {
+    "id": "advance",
+    "emoji": "💰",
+    "color": 4,
+    "repeat": "monthly",
+    "day": 25
+  },
+  {
+    "id": "vacation",
+    "emoji": "✈️",
+    "color": 2,
+    "repeat": "once",
+    "offset": 30
+  },
+  {
+    "id": "newYear",
+    "emoji": "🎄",
+    "color": 3,
+    "repeat": "yearly",
+    "day": 31,
+    "month": 12
+  },
+  {
+    "id": "birthday",
+    "emoji": "🎂",
+    "color": 1,
+    "repeat": "yearly",
+    "offset": 30
+  }
+]
